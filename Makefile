@@ -2,16 +2,17 @@
 	predict_tiles aussersihl_tiles execute_notebooks
 
 #################################################################################
-
+## THIS MAKEFILE IS EDITED FROM THE ORIGINAL REPO (martibosch/detectree-example)
+## > to run with Windows 11, paths were changed from "/" to "\"
 # globals
 
 ## variables
 CODE_DIR = detectree_example
 
 DATA_DIR = data
-DATA_RAW_DIR := $(DATA_DIR)/raw
-DATA_INTERIM_DIR := $(DATA_DIR)/interim
-DATA_PROCESSED_DIR := $(DATA_DIR)/processed
+DATA_RAW_DIR := $(DATA_DIR)\raw
+DATA_INTERIM_DIR := $(DATA_DIR)\interim
+DATA_PROCESSED_DIR := $(DATA_DIR)\processed
 
 ## rules
 define MAKE_DATA_SUB_DIR
@@ -32,21 +33,21 @@ $(foreach DATA_SUB_DIR, \
 ORTHOIMG_URI_BASE = \
 	https://maps.zh.ch/download/orthofoto/sommer/2014/rgb/jpeg/ortho_sommer14
 ORTHOIMG_SHP_EXTENSIONS = dbf prj shx
-ORTHOIMG_SHP_DIR := $(DATA_RAW_DIR)/orthoimg
-ORTHOIMG_SHP_BASEPATH := $(ORTHOIMG_SHP_DIR)/ortho_sommer14
+ORTHOIMG_SHP_DIR := $(DATA_RAW_DIR)\orthoimg
+ORTHOIMG_SHP_BASEPATH := $(ORTHOIMG_SHP_DIR)\ortho_sommer14
 ORTHOIMG_SHP_OTHERS := $(foreach EXT, $(ORTHOIMG_SHP_EXTENSIONS), \
 	$(ORTHOIMG_SHP_BASEPATH).$(EXT))
 ORTHOIMG_SHP := $(ORTHOIMG_SHP_BASEPATH).shp
 
 #### Download the required tiles of the orthoimage
-TILES_DIR = $(DATA_INTERIM_DIR)/tiles
-INTERSECTING_TILES_CSV := $(TILES_DIR)/intersecting_tiles.csv
-DOWNSAMPLED_TILES_CSV := $(TILES_DIR)/downsampled_tiles.csv
+TILES_DIR = $(DATA_INTERIM_DIR)\tiles
+INTERSECTING_TILES_CSV := $(TILES_DIR)\intersecting_tiles.csv
+DOWNSAMPLED_TILES_CSV := $(TILES_DIR)\downsampled_tiles.csv
 NOMINATIM_QUERY = Zurich  # municipal boundaries
 
 #### code
-GET_TILES_TO_DOWNLOAD_PY = $(CODE_DIR)/get_tiles_to_download.py
-MAKE_TILES_PY = $(CODE_DIR)/make_tiles.py
+GET_TILES_TO_DOWNLOAD_PY = $(CODE_DIR)\get_tiles_to_download.py
+MAKE_TILES_PY = $(CODE_DIR)\make_tiles.py
 
 ### rules
 $(ORTHOIMG_SHP_DIR): | $(DATA_RAW_DIR)
@@ -74,7 +75,7 @@ tiles: $(DOWNSAMPLED_TILES_CSV)
 ## train/test split
 
 ### variables
-TRAIN_TEST_SPLIT_CSV := $(TILES_DIR)/split.csv
+TRAIN_TEST_SPLIT_CSV := $(TILES_DIR)\split.csv
 NUM_TILE_CLUSTERS = 4
 
 ### rules
@@ -91,15 +92,15 @@ train_test_split: $(TRAIN_TEST_SPLIT_CSV)
 #### Zurich lidar https://www.geolion.zh.ch/geodatensatz/2606
 LIDAR_URI_BASE = https://maps.zh.ch/download/hoehen/2014/lidar/lidar2014
 LIDAR_SHP_EXTENSIONS = dbf prj qix shx
-LIDAR_SHP_DIR = $(DATA_RAW_DIR)/lidar
-LIDAR_SHP_BASEPATH := $(LIDAR_SHP_DIR)/lidar2014
+LIDAR_SHP_DIR = $(DATA_RAW_DIR)\lidar
+LIDAR_SHP_BASEPATH := $(LIDAR_SHP_DIR)\lidar2014
 LIDAR_SHP_OTHERS := $(foreach EXT, $(LIDAR_SHP_EXTENSIONS), \
 	$(LIDAR_SHP_BASEPATH).$(EXT))
 LIDAR_SHP := $(LIDAR_SHP_BASEPATH).shp
 
-RESPONSE_TILES_DIR := $(DATA_INTERIM_DIR)/response_tiles
-MAKE_RESPONSE_TILES_PY = $(CODE_DIR)/make_response_tiles.py
-RESPONSE_TILES_CSV := $(RESPONSE_TILES_DIR)/response_tiles.csv
+RESPONSE_TILES_DIR := $(DATA_INTERIM_DIR)\response_tiles
+MAKE_RESPONSE_TILES_PY = $(CODE_DIR)\make_response_tiles.py
+RESPONSE_TILES_CSV := $(RESPONSE_TILES_DIR)\response_tiles.csv
 
 ### rules
 $(LIDAR_SHP_DIR): | $(DATA_RAW_DIR)
@@ -157,11 +158,11 @@ predict_tiles: $(MODEL_JOBLIB_FILEPATHS) $(TRAIN_TEST_SPLIT_CSV) \
 ## make a LULC raster for Zurich's Aussersihl
 ### variables
 AUSSERSIHL_NOMINATIM_QUERY = "Zurich Aussersihl"
-AUSSERSIHL_TILES_DIR := $(DATA_INTERIM_DIR)/aussersihl_tiles
-AUSSERSIHL_INTERSECTING_TILES_CSV = $(AUSSERSIHL_TILES_DIR)/intersecting_tiles.csv
-AUSSERSIHL_TILES_CSV := $(AUSSERSIHL_TILES_DIR)/tiles.csv
+AUSSERSIHL_TILES_DIR := $(DATA_INTERIM_DIR)\aussersihl_tiles
+AUSSERSIHL_INTERSECTING_TILES_CSV = $(AUSSERSIHL_TILES_DIR)\intersecting_tiles.csv
+AUSSERSIHL_TILES_CSV := $(AUSSERSIHL_TILES_DIR)\tiles.csv
 #### code
-MAKE_LULC_RASTER_PY := $(CODE_DIR)/make_lulc_raster.py
+MAKE_LULC_RASTER_PY := $(CODE_DIR)\make_lulc_raster.py
 
 ### rules
 $(AUSSERSIHL_TILES_DIR): | $(DATA_INTERIM_DIR)
@@ -181,14 +182,14 @@ aussersihl_tiles: $(AUSSERSIHL_TILES_CSV)
 # notebooks (for CI)
 
 NOTEBOOKS_DIR = notebooks
-OUTPUT_DIR := $(NOTEBOOKS_DIR)/output
+OUTPUT_DIR := $(NOTEBOOKS_DIR)\output
 
 $(OUTPUT_DIR):
 	mkdir $(OUTPUT_DIR)
 
 execute_notebooks: | $(OUTPUT_DIR)
 	jupyter nbconvert --ExecutePreprocessor.timeout=5000 --to notebook \
-		--execute $(NOTEBOOKS_DIR)/*.ipynb --output-dir $(OUTPUT_DIR)
+		--execute $(NOTEBOOKS_DIR)\*.ipynb --output-dir $(OUTPUT_DIR)
 	rm -rf $(OUTPUT_DIR)
 
 #################################################################################
