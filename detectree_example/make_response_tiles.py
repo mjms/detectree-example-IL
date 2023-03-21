@@ -59,9 +59,11 @@ def make_response_tile(
 
         dfs = []
         for lidar_tile_filename in lidar_tile_filenames:
-            dfs.append(get_from_cache_or_download(lidar_tile_filename, raw_dir, bounds))
+            dfs.append(get_from_cache_or_download(
+                lidar_tile_filename, raw_dir, bounds))
         df = pd.concat(dfs)
-        gser = gpd.GeoSeries([geometry.Point(x, y) for x, y in zip(df["x"], df["y"])])
+        gser = gpd.GeoSeries([geometry.Point(x, y)
+                             for x, y in zip(df["x"], df["y"])])
         arr = features.rasterize(
             shapes=[
                 (geom, class_val) for geom, class_val in zip(gser, df["class_val"])
@@ -80,7 +82,8 @@ def make_response_tile(
 
     if response_dir is not None:
         meta.update(dtype=output_dtype, count=1, nodata=output_nodata)
-        response_tile_filepath = path.join(response_dir, path.basename(tile_filepath))
+        response_tile_filepath = path.join(
+            response_dir, path.basename(tile_filepath))
         with rio.open(response_tile_filepath, "w", **meta) as dst:
             dst.write(output_arr, 1)
         if logger is not None:
@@ -91,14 +94,20 @@ def make_response_tile(
 
 
 def make_response_tiles(split_df, lidar_gdf, raw_dir, response_dir=None, logger=None):
-    tile_filepaths = split_df[split_df["train"]]["img_filepath"]
+    # split_df[split_df["train"]]["img_filepath"]
+    tile_filepaths = split_df["img_filepath"]
 
     response_tile_filepaths = []
     for tile_filepath in tile_filepaths:
-        response_tile_filepath = make_response_tile(
-            tile_filepath, lidar_gdf, raw_dir, response_dir=response_dir, logger=logger
-        )
-        response_tile_filepaths.append(response_tile_filepath)
+        try:
+            print(f"trying {tile_filepath}... making response tiles")
+            response_tile_filepath = make_response_tile(
+                tile_filepath, lidar_gdf, raw_dir, response_dir=response_dir, logger=logger
+            )
+            response_tile_filepaths.append(response_tile_filepath)
+        except Exception as e:
+            print(f"failed {tile_filepath}!")
+            print(e)
 
     return response_tile_filepaths
 
